@@ -8,7 +8,7 @@ import transformers
 from transformers import AutoModelForCausalLM, AutoTokenizer, GPTQConfig
 import tensorflow as tf
 import sys
-import bitsandbytes as bnb
+#import bitsandbytes as bnb
 sys.path.append('/home/mp1820/FYP') 
 
 from FYP.api import model

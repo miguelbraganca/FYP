@@ -1,0 +1,6 @@
+transformers>=4.12.5
+numpy>=1.17.5
+pytest>=6.2.4
+torch
+
+# TODO: Replace with the actual requirements

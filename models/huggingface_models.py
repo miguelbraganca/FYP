@@ -11,10 +11,8 @@ import sys
 import bitsandbytes as bnb
 sys.path.append('/home/mp1820/FYP') 
 
-from api import model
-import utils as model_utils
-
-import sys
+from FYP.api import model
+import FYP.models.utils as model_utils
 
 
 MAX_LENGTH = 2048

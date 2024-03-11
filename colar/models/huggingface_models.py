@@ -21,6 +21,9 @@ MODELS = {
         "llama2-13b", # "huggyllama/llama-13b"
         "llama2-70b", # "huggyllama/llama-65b"
     ],
+    "tinyLlama": [
+        "tinyLlama",
+    ],
     #"mistral": [
     #    "mistral-7b",
     #],
@@ -38,6 +41,10 @@ MODEL_CLASSES = {
         "lm": transformers.AutoModelForCausalLM,
         "tokenizer": transformers.AutoTokenizer,
     },
+    "tinyLlama" : {
+        "lm": transformers.AutoModelForCausalLM,
+        "tokenizer": transformers.AutoTokenizer,
+    },
     #"mistral" : {
     #    "lm": transformers.MistralLMHeadModel,
     #    "tokenizer": transformers.MistralTokenizer,
@@ -49,6 +56,8 @@ MODEL_CLASSES = {
 }
 
 MODEL_LINKS = {
+    "tinyLlama": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "llama2-7b": "meta-llama/Llama-2-7b-hf",
     "llama2-7b": "meta-llama/Llama-2-7b-hf",
     "llama2-13b": "meta-llama/Llama-2-13b-hf",
     "llama2-70b": "meta-llama/Llama-2-70b-hf",
@@ -128,6 +137,17 @@ LLAMA2_EMBEDDING_PARAMS = {
 }
 
 MODEL_INFO = {
+    "tinyLlama": model.ModelData(
+        model_family="TinyLLama",
+        model_name="TinyLLama",
+        non_embedding_params=0,
+        flop_matched_non_embedding_params=0,
+        total_params=0,
+        training_batch_size=LLAMA_CONTEXT_LENGTH,
+        training_steps=1000000,
+        description="A small version of LLaMA2. See https://arxiv.org/pdf/2307.09288.pdf",
+        decoding_params={},
+    ),
     "llama2-7b": model.ModelData(
         model_family="LLaMA2",
         model_name="LLaMA2-7B",

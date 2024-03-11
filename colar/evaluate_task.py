@@ -258,7 +258,7 @@ def main(_):
             )
             sys.exit(-1)
 
-    task_module_name = f"bigbench.benchmark_tasks.{FLAGS.task}"
+    task_module_name = f"colar.benchmark_tasks.{FLAGS.task}"
     task_module = importlib.import_module(task_module_name)
 
     module_path = list(task_module.__path__)[0]

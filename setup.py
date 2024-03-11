@@ -19,6 +19,10 @@ def process_requirements(fname):
   requirements = read(fname)
 
   def _process_local(x):
+    if "bleurt" in  x:
+      bleurt_path = os.path.abspath(x)
+      return f"bleurt @ file://localhost/{bleurt_path}#egg=bleurt"
+    else:
       return x
 
   processed_requirements = [

@@ -2,27 +2,19 @@
 
 import absl.flags
 import absl.app
-import copy
 import dataclasses
-import datetime
 import importlib
 import json
 import numpy as np
 import os
 import pprint as pp
-import scipy
 import sys
-from typing import Dict, List, Optional, Union
+from typing import List
 
 import colar.models.huggingface_models as hf_models
 import bigbench.models.query_logging_model as query_logging_model
-from bigbench.models.human_model import HumanModel
-import bigbench.models.json_rpc_model as json_rpc_model
-import bigbench.models.dummy_model as dummy_model
-import bigbench.api.test_tasks as test_tasks
 import bigbench.api.json_task as json_task
 import bigbench.api.util as util
-import bigbench.api.model as model_api
 import bigbench.api.task as task_api
 import bigbench.api.results as results_api
 
@@ -39,7 +31,7 @@ absl.flags.mark_flag_as_required("task")
 
 absl.flags.DEFINE_list(
     "models",
-    ["gpt2"],
+    ["llama2-7b"],
     "models to evaluate: human (for human eval), "
     f"{hf_models.MODEL_NAMES} for local eval, or "
     "a served model name if connecting to a proxy server",

@@ -9,8 +9,8 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, GPTQConfig
 import tensorflow as tf
 import sys
 
-from bigbench.api import model
-import bigbench.models.model_utils as model_utils
+from colar.api import model
+import colar.models.utils as model_utils
 
 
 MAX_LENGTH = 2048

@@ -17,4 +17,3 @@ seaborn>=0.11.2
 t5>=0.9.1
 seqio>=0.0.6
 transformers>=4.12.5
-bigbench

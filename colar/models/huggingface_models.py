@@ -275,20 +275,13 @@ class _HFTransformerModel:
         hf_link = MODEL_LINKS[self._model_name]
         self._tokenizer = tokenizer_class.from_pretrained(hf_link) #For LLaMA2
         # Ensure padding token is set for tokenizer
+
+        self._model = model_class.from_pretrained(hf_link, pad_token_id=self._tokenizer.eos_token_id)
+
         if self._tokenizer.pad_token is None:
             # If no pad token is set, '<pad>' is used as the padding token
             self._tokenizer.add_special_tokens({"pad_token": "<pad>"})
             print("Padding token '<pad>' was added to the tokenizer.")
-
-
-        quantization_config = GPTQConfig(
-            bits=4,
-            group_size=128,
-            dataset="c4",
-            desc_act=False,
-            tokenizer=self._tokenizer
-        )
-        self._model = model_class.from_pretrained(hf_link)
 
         # Resize model token embeddings to match the tokenizer's vocabulary size
         self._model.resize_token_embeddings(len(self._tokenizer))

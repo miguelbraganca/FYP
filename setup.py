@@ -20,8 +20,7 @@ def process_requirements(fname):
 
   def _process_local(x):
     if "bleurt" in  x:
-      bleurt_path = os.path.abspath(x)
-      return f"bleurt @ file://localhost/{bleurt_path}#egg=bleurt"
+      pass
     else:
       return x
 

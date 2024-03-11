@@ -14,7 +14,7 @@ import scipy
 import sys
 from typing import Dict, List, Optional, Union
 
-import models.huggingface_models as hf_models
+import colar.models.huggingface_models as hf_models
 import bigbench.models.query_logging_model as query_logging_model
 from bigbench.models.human_model import HumanModel
 import bigbench.models.json_rpc_model as json_rpc_model

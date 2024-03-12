@@ -12,6 +12,12 @@ import sys
 from colar.api import model
 import colar.models.utils as model_utils
 
+if torch.cuda.is_available():
+    device = torch.device("cuda")
+    print("GPU is available")
+else:
+    device = torch.device("cpu")
+    print("GPU is not available, using CPU instead")
 
 MAX_LENGTH = 2048
 
@@ -56,7 +62,7 @@ MODEL_CLASSES = {
 }
 
 MODEL_LINKS = {
-    "tinyLlama": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "tinyLlama": "casperhansen/tinyllama-1b-awq-gemv",
     "llama2-7b": "meta-llama/Llama-2-7b-hf",
     "llama2-7b": "meta-llama/Llama-2-7b-hf",
     "llama2-13b": "meta-llama/Llama-2-13b-hf",
@@ -293,10 +299,11 @@ class _HFTransformerModel:
         model_class = MODEL_CLASSES[self._model_type]["lm"]
         tokenizer_class = MODEL_CLASSES[self._model_type]["tokenizer"]
         hf_link = MODEL_LINKS[self._model_name]
-        self._tokenizer = tokenizer_class.from_pretrained(hf_link) #For LLaMA2
+        self._tokenizer = tokenizer_class.from_pretrained(hf_link)
         # Ensure padding token is set for tokenizer
 
-        self._model = model_class.from_pretrained(hf_link, pad_token_id=self._tokenizer.eos_token_id)
+        self._model = model_class.from_pretrained(hf_link, pad_token_id=self._tokenizer.eos_token_id).to(device)
+
 
         if self._tokenizer.pad_token is None:
             # If no pad token is set, '<pad>' is used as the padding token
@@ -442,11 +449,11 @@ class _HFTransformerModel:
         )
         # When scoring step N, the target token is the next input token at step N+1, so we
         # shift all labels one step to the left before giving the labels to the loss function.
-        shifted_labels = np.roll(labels, -1)
+        shifted_labels = np.roll(labels.cpu(), -1)
         # Always mask the last shifted token (== first token before the shift)
         shifted_labels[:, -1] = -100
         # Detach tensors and convert to numpy arrays
-        logits = logits.detach().numpy()  # Detach and convert to numpy
+        logits = logits.cpu().detach().numpy()  # Detach and convert to numpy
         # Clip negative/masked labels to zero - those will get masked later anyway
         unmasked_loss = loss_fn(tf.nn.relu(shifted_labels), logits)
         # Make sure only labels that are not equal to -100 affect the loss
@@ -484,32 +491,32 @@ class _HFTransformerModel:
             batch_targets=target_list,
         )
 
-        inputs_and_targets_ids = torch.from_numpy(tokenized_ids["inputs_and_targets_ids"])
-        targets_ids = torch.from_numpy(tokenized_ids["targets_ids"])
-        attention_mask = torch.from_numpy(tokenized_ids["attention_mask"])
+        inputs_and_targets_ids = torch.from_numpy(tokenized_ids["inputs_and_targets_ids"]).to(device)
+        targets_ids = torch.from_numpy(tokenized_ids["targets_ids"]).to(device)
+        attention_mask = torch.from_numpy(tokenized_ids["attention_mask"]).to(device)
 
         inputs_and_targets_ids = self._maybe_truncate_input(
-            inputs_and_targets_ids.numpy(), verbose=True  # Convert back to numpy for truncation
+            inputs_and_targets_ids.cpu().numpy(), verbose=True  # Convert back to numpy for truncation
         )
-        targets_ids = self._maybe_truncate_input(targets_ids.numpy(), verbose=False)  # Same here
-        attention_mask = self._maybe_truncate_input(attention_mask.numpy(), verbose=False)  # And here
+        targets_ids = self._maybe_truncate_input(targets_ids.cpu().numpy(), verbose=False)  # Same here
+        attention_mask = self._maybe_truncate_input(attention_mask.cpu().numpy(), verbose=False)  # And here
 
         # Convert back to torch tensors after truncation
-        inputs_and_targets_ids = torch.from_numpy(inputs_and_targets_ids)
-        targets_ids = torch.from_numpy(targets_ids)
-        attention_mask = torch.from_numpy(attention_mask)
+        inputs_and_targets_ids = torch.from_numpy(inputs_and_targets_ids).to(device)
+        targets_ids = torch.from_numpy(targets_ids).to(device)
+        attention_mask = torch.from_numpy(attention_mask).to(device)
 
         # Calculating position ids, since they might be changed by truncation
-        position_ids = torch.maximum(torch.cumsum(attention_mask, axis=-1) - 1, torch.tensor(0))
+        position_ids = torch.maximum(torch.cumsum(attention_mask, axis=-1) - 1, torch.tensor(0)).to(device)
 
-        targets_ids = targets_ids.long()
+        targets_ids = targets_ids.long().to(device)
 
         logits = self._model(
             input_ids=inputs_and_targets_ids,
             labels=targets_ids,
             attention_mask=attention_mask,
             position_ids=position_ids,
-        ).logits
+        ).logits.to(device)
 
         return self.compute_loss(targets_ids, logits)
 
